@@ -8,7 +8,7 @@ from typing import Callable
 class RabbitMQ:
     instance = None
 
-    def __init__(self, log: logging.Logger, host: str = "localhost", port: int = 5672):
+    def __init__(self, log: logging.Logger, host: str = "rabbit", port: int = 5672):
         self.log = log
         self.host = host
         self.port = port

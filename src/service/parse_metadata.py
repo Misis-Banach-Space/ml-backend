@@ -4,18 +4,9 @@ import bs4
 import pandas as pd
 from urllib.parse import urlparse, parse_qs, unquote
 
-import json
-from urllib.parse import urljoin
-
-from bs4 import BeautifulSoup
-import requests
-
 
 async def parse_url(base_url: str):
-    headers = {
-        "X-Requested-With": "XMLHttpRequest",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0",
-    }
+    headers = {"user-agent": "Chrome/117.0.0.0"}
     async with httpx.AsyncClient(headers=headers) as client:
         try:
             data = ""
@@ -41,8 +32,7 @@ async def parse_url(base_url: str):
                     .decode("utf-8")
                 )
             else:
-                jsData = json.loads(resp.text)
-                soup = bs4.BeautifulSoup(jsData["html"], features="html.parser")
+                soup = bs4.BeautifulSoup(resp.content, features="html.parser")
                 title = soup.find("title")
                 if title:
                     data += f"{title.get_text()},"
@@ -96,14 +86,11 @@ async def parse_url(base_url: str):
 
 
 def get_title(url: str):
-    headers = {"X-Requested-With": "XMLHttpRequest", "user-agent": "Chrome/117.0.0.0"}
+    headers = {"user-agent": "Chrome/117.0.0.0"}
     with httpx.Client(headers=headers) as client:
         resp = client.get(url, timeout=5)
-        print(resp.text)
-        # jsdata = json.loads(resp)
-        # print(jsdata)
-        # soup = bs4.BeautifulSoup(jsdata["html"], features="html.parser")
-        # print(soup.find_all("body"))
+        soup = bs4.BeautifulSoup(resp.content, features="html.parser")
+        print(soup.find_all("body"))
 
 
 async def get_metadata(url: str):

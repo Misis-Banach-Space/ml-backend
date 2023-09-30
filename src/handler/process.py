@@ -2,8 +2,8 @@ import pika
 import json
 import time
 from model.schema import UrlRequest, UrlResponse
-from handler.parse_analysis import get_stats_report
-from handler.parse_metadata import get_metadata
+from service.parse_analysis import get_stats_report
+from service.parse_metadata import get_metadata
 from utils.logging import get_logger
 
 # from handler.parse_metadata import parse_url
