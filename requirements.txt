@@ -9,3 +9,9 @@ ultimate_sitemap_parser
 pymorphy3
 pymorphy3-dicts-ru
 selenium
+translate
+transliterate
+autocorrect
+deep_translator
+joblib
+scikit-learn

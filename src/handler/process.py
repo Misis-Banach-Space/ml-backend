@@ -6,6 +6,8 @@ from service.parse_metadata import get_metadata
 from ml.nlp import get_theme
 from utils.logging import get_logger
 
+from ml.prediction_kakos import make_predict
+
 log = get_logger(__name__)
 
 
@@ -18,6 +20,8 @@ def process_url_request(channel, method, props, body: bytes):
     metadata = get_metadata(u.url)
     print(f"metadata: {metadata}")
     theme = get_theme(metadata[1])
+    if not theme:
+        theme = make_predict(metadata[1])
 
     channel.basic_publish(
         exchange="",

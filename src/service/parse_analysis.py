@@ -17,6 +17,15 @@ def get_soup(domain):
     except Exception as e:
         log.error(str(e))
         return None
+    
+def get_soupBase(url):
+    try:
+        req = requests.get(url)
+        soup = BeautifulSoup(req.text, "html.parser")
+        return soup
+    except Exception as e:
+        log.error(str(e))
+        return None
 
 
 def get_yandex_requests_data(soup, url: str):
@@ -70,16 +79,22 @@ def get_stats_report(url: str):
     regexp = re.findall(r"([\w.-]+\.[\w.-]+)", url)
     if len(regexp) == 0:
         return {"title": "", "description": ""}
+    soupBase = get_soupBase(url)
+    if soupBase is None:
+        return {"title": "", "description": ""}
+    title = soupBase.title.string if soupBase.title else ""
+    description_tag = soupBase.find('meta', attrs={'name': 'description'})
+    description = description_tag['content'] if description_tag else ""
     soup = get_soup(regexp[0])
     if soup is None:
-        return {"title": "", "description": ""}
+        return {"title": title, "description": description}
     try:
         data_table = get_yandex_requests_data(soup, url)
         dict_list, domain_names = get_stats(soup)
 
         data = {
-            "title": soup.find(id="set_title").text,
-            "description": soup.find(id="set_description").text,
+            "title": title,
+            "description": description,
             "vozrast": soup.find(id="set_vozrast").text,
             "page_size": soup.find(id="set_page_size").text,
             "page_load_time": soup.find(id="set_page_load_time").text,
@@ -104,9 +119,7 @@ def get_stats_report(url: str):
         return data
     except Exception as e:
         log.error(str(e))
-        title = soup.find(id="set_title")
-        descr = soup.find(id="set_description")
         return {
-            "title": title.text if title else "",
-            "description": descr.text if descr else "",
+            "title": title,
+            "description": description,
         }

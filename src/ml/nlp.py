@@ -2,6 +2,7 @@ import pymorphy3
 import re
 import pandas as pd
 from collections import Counter
+import numpy as np
 
 topics_and_keywords = {
     "Бухгалтерские услуги": 0,
@@ -76,7 +77,7 @@ def freq(x):
 
 def get_theme(text: str) -> str:
     cur = Lemmatization(text)
-    print(cur)
+    # print(cur)
     df = pd.read_csv("./keywords.csv", sep=",")
 
     cnt = 0
@@ -97,13 +98,18 @@ def get_theme(text: str) -> str:
                 freq(pred_topic).items(), key=lambda item: item[1], reverse=True
             )
         }
-        # print(res)
-        # print(f"Предварительная тема: {list(res.keys())[0]}")
+        print(res)
+        print(f"Предварительная тема: {list(res.keys())[0]}")
         return list(res.keys())[0]
     else:
         return "unmatched"
 
 
 if __name__ == "__main__":
-    text = "Поиск по 153038 проверенным рецептам Поиск по ингредиентам Все рецепты Свежие рецепты Бульоны и супы Горячие блюда Салаты Закуски Выпечка Десерты Соусы Домашнее консервирование"
-    print(get_theme(text))
+    # df = pd.read_csv('metadata2.csv', sep=';')
+    # ds_theme = [get_theme(str(meta)) for meta in df['metadata']]
+    # print(ds_theme)
+    # df['theme'] = ds_theme
+    # df.to_csv('meta_all.csv')
+    text = 'шоп, ру, магазин, мф, Аде, каталог, мфу, днс, арфе, лазерные'
+    get_theme(text)
