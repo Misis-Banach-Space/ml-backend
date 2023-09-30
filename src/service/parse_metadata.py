@@ -4,9 +4,14 @@ import bs4
 import pandas as pd
 from urllib.parse import urlparse, parse_qs, unquote
 
+import json
+from urllib.parse import urljoin
+
 
 async def parse_url(base_url: str):
-    headers = {"user-agent": "Chrome/117.0.0.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0",
+    }
     async with httpx.AsyncClient(headers=headers) as client:
         try:
             data = ""
@@ -32,7 +37,7 @@ async def parse_url(base_url: str):
                     .decode("utf-8")
                 )
             else:
-                soup = bs4.BeautifulSoup(resp.content, features="html.parser")
+                soup = bs4.BeautifulSoup(resp.text, features="html.parser")
                 title = soup.find("title")
                 if title:
                     data += f"{title.get_text()},"
@@ -52,7 +57,6 @@ async def parse_url(base_url: str):
 
                 description = soup.find("meta", {"name": "description"})
                 if description:
-                    # print(description.get_text())
                     data += ",".join(
                         [
                             s
@@ -65,6 +69,39 @@ async def parse_url(base_url: str):
                             )
                         ]
                     )
+                h1 = set()
+                for head in soup.find_all("h1"):
+                    cur = (
+                        head.text.replace("\n", " ")
+                        .replace("\r", "")
+                        .replace("  ", "")
+                        .strip()
+                    )
+                    if cur:
+                        h1.add(cur)
+                data += ",".join([tag for tag in h1])
+                h2 = set()
+                for head in soup.find_all("h2"):
+                    cur = (
+                        head.text.replace("\n", " ")
+                        .replace("\r", "")
+                        .replace("  ", "")
+                        .strip()
+                    )
+                    if cur:
+                        h2.add(cur)
+                data += ",".join([tag for tag in h2])
+                h3 = set()
+                for head in soup.find_all("h3"):
+                    cur = (
+                        head.text.replace("\n", " ")
+                        .replace("\r", "")
+                        .replace("  ", "")
+                        .strip()
+                    )
+                    if cur:
+                        h3.add(cur)
+                data += ",".join([tag for tag in h3])
                 return (
                     data.replace("\n", " ")
                     .replace("\r", "")
@@ -85,30 +122,20 @@ async def parse_url(base_url: str):
             )
 
 
-def get_title(url: str):
-    headers = {"user-agent": "Chrome/117.0.0.0"}
-    with httpx.Client(headers=headers) as client:
-        resp = client.get(url, timeout=5)
-        soup = bs4.BeautifulSoup(resp.content, features="html.parser")
-        print(soup.find_all("body"))
-
-
 async def get_metadata(url: str):
     return [url, await parse_url(url)]
 
 
 async def main():
-    get_title("https://www.dns-shop.ru/catalog/17a8df6816404e77/lazernye-mfu")
-    # websites = pd.read_csv("new_links.csv", sep=";", encoding="utf-8")
+    websites = pd.read_csv("big_links.csv", sep=";", encoding="utf-8")
 
-    # data_list: list[dict] = await asyncio.gather(
-    #     *[get_metadata(url) for url in websites["link"]]
-    # )
-    # print(data_list[0])
-    # df = pd.DataFrame(columns=["link", "metadata"], data=data_list)
-    # websites = websites.merge(df, on="link", how="left")
-    # print(websites["metadata"].head())
-    # websites.to_csv("metadata.csv", sep=";", index=False, encoding="utf-8")
+    data_list: list[dict] = await asyncio.gather(
+        *[get_metadata(url) for url in websites["link"]]
+    )
+    df = pd.DataFrame(columns=["link", "metadata"], data=data_list)
+    websites = websites.merge(df, on="link", how="left")
+    websites.to_csv("metadata.csv", sep=";", index=False, encoding="utf-8")
+    print(websites.head())
 
 
 if __name__ == "__main__":

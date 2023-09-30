@@ -6,8 +6,6 @@ from service.parse_analysis import get_stats_report
 from service.parse_metadata import get_metadata
 from utils.logging import get_logger
 
-# from handler.parse_metadata import parse_url
-
 log = get_logger(__name__)
 
 
@@ -17,7 +15,6 @@ def process_url_request(channel, method, props, body: bytes):
     u = UrlRequest(**body)
 
     # here comes ML
-    time.sleep(5)
     stats = get_stats_report(u.url)
     metadata = get_metadata(u.url)
 

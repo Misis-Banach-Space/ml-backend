@@ -16,7 +16,7 @@ def get_soup(domain):
         return soup
     except Exception as e:
         log.error(str(e))
-        return {}
+        return None
 
 
 def get_yandex_requests_data(soup, url: str):
@@ -67,12 +67,11 @@ def get_stats(soup):
 
 
 def get_stats_report(url: str):
+    domain = re.findall(r"([\w.-]+\.[\w.-]+)", url)[0]
+    soup = get_soup(domain)
+    if not soup:
+        return {"title": "", "description": ""}
     try:
-        domain = re.findall(r"([\w.-]+\.[\w.-]+)", url)[0]
-        soup = get_soup(domain)
-        if soup == {}:
-            return {}
-
         data_table = get_yandex_requests_data(soup, url)
         dict_list, domain_names = get_stats(soup)
 
@@ -105,4 +104,5 @@ def get_stats_report(url: str):
         log.error(str(e))
         return {
             "title": soup.find(id="set_title").text,
+            "description": soup.find(id="set_description").text,
         }
