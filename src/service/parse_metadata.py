@@ -8,11 +8,11 @@ import json
 from urllib.parse import urljoin
 
 
-async def parse_url(base_url: str):
+def parse_url(base_url: str):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0",
     }
-    async with httpx.AsyncClient(headers=headers) as client:
+    with httpx.Client(headers=headers) as client:
         try:
             data = ""
             query_args = parse_qs(urlparse(base_url).query)
@@ -26,7 +26,7 @@ async def parse_url(base_url: str):
                     ):
                         data += f"{', '.join([unquote(value) for value in values])}"
 
-            resp = await client.get(base_url, timeout=5)
+            resp = client.get(base_url, timeout=5)
             if resp.status_code >= 400:
                 return (
                     data.replace("\n", " ")
@@ -122,16 +122,25 @@ async def parse_url(base_url: str):
             )
 
 
-async def get_metadata(url: str):
-    return [url, await parse_url(url)]
+def get_zapros(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0",
+    }
+    with httpx.Client(headers=headers) as client:
+        resp = client.get(url, timeout=5)
+        soup = bs4.BeautifulSoup(resp.text, features="html.parser")
+        head = soup.find("head")
+        print(head)
+
+
+def get_metadata(url: str):
+    return [url, parse_url(url)]
 
 
 async def main():
     websites = pd.read_csv("big_links.csv", sep=";", encoding="utf-8")
 
-    data_list: list[dict] = await asyncio.gather(
-        *[get_metadata(url) for url in websites["link"]]
-    )
+    data_list: list[dict] = [get_metadata(url) for url in websites["link"]]
     df = pd.DataFrame(columns=["link", "metadata"], data=data_list)
     websites = websites.merge(df, on="link", how="left")
     websites.to_csv("metadata.csv", sep=";", index=False, encoding="utf-8")

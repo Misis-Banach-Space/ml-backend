@@ -71,7 +71,7 @@ def get_stats_report(url: str):
     if len(regexp) == 0:
         return {"title": "", "description": ""}
     soup = get_soup(regexp[0])
-    if not soup:
+    if soup is None:
         return {"title": "", "description": ""}
     try:
         data_table = get_yandex_requests_data(soup, url)
@@ -104,7 +104,9 @@ def get_stats_report(url: str):
         return data
     except Exception as e:
         log.error(str(e))
+        title = soup.find(id="set_title")
+        descr = soup.find(id="set_description")
         return {
-            "title": soup.find(id="set_title").text,
-            "description": soup.find(id="set_description").text,
+            "title": title.text if title else "",
+            "description": descr.text if descr else "",
         }

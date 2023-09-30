@@ -7,7 +7,7 @@ log = get_logger(__name__)
 
 
 def main():
-    rabbit_mq = RabbitMQ(get_logger("RabbitMQ"))
+    rabbit_mq = RabbitMQ(get_logger("RabbitMQ"), host="localhost")
     rabbit_mq.declare_queue("url_queue")
 
     from handler.process import process_url_request

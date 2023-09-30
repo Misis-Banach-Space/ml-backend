@@ -1,5 +1,5 @@
 pika
-pydantic
+pydantic==1.10.5
 httpx
 beautifulsoup4
 pandas

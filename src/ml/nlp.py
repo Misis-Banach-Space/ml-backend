@@ -74,7 +74,7 @@ def freq(x):
     return freq
 
 
-def get_theme(text: str) -> list:
+def get_theme(text: str) -> str:
     cur = Lemmatization(text)
     df = pd.read_csv("./keywords.csv", sep=",")
 
@@ -100,9 +100,9 @@ def get_theme(text: str) -> list:
         # print(f"Предварительная тема: {list(res.keys())[0]}")
         return list(res.keys())[0]
     else:
-        return []
+        return "unmatched"
 
 
 if __name__ == "__main__":
     text = "Поиск по 153038 проверенным рецептам Поиск по ингредиентам Все рецепты Свежие рецепты Бульоны и супы Горячие блюда Салаты Закуски Выпечка Десерты Соусы Домашнее консервирование"
-    get_theme(text)
+    print(get_theme(text))
