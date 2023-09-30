@@ -1,43 +1,20 @@
-import json
-import time
-import pika
-from pydantic import BaseModel, Json
-
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host="localhost", port=5672)
-)
-
-channel = connection.channel()
-
-channel.queue_declare(queue="rpc_queue")
+import asyncio
+from service.rabbit import RabbitMQ
+from utils.logging import get_logger
 
 
-class TestModel(BaseModel):
-    msg: str
+log = get_logger(__name__)
 
 
-def on_request(ch, method, props, body: bytes):
-    decoded_body = json.loads(body)
-    print(decoded_body)
+def main():
+    rabbit_mq = RabbitMQ(get_logger("RabbitMQ"))
+    rabbit_mq.declare_queue("url_queue")
 
-    model = TestModel(**decoded_body)
-    print(model.model_dump_json())
-    time.sleep(3)
-    model.msg = "changed"
-    print(model.model_dump_json())
+    from handler.process import process_url_request
 
-    ch.basic_publish(
-        exchange="",
-        routing_key=props.reply_to,
-        properties=pika.BasicProperties(correlation_id=props.correlation_id),
-        body=model.model_dump_json(),
-    )
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    log.info("listening for requests")
+    rabbit_mq.start_consuming("url_queue", process_url_request)
 
 
-channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue="rpc_queue", on_message_callback=on_request)
-
-
-print(" [x] Awaiting RPC requests")
-channel.start_consuming()
+if __name__ == "__main__":
+    asyncio.run(main())
