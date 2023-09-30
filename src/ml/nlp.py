@@ -76,6 +76,7 @@ def freq(x):
 
 def get_theme(text: str) -> str:
     cur = Lemmatization(text)
+    print(cur)
     df = pd.read_csv("./keywords.csv", sep=",")
 
     cnt = 0

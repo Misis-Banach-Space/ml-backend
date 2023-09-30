@@ -8,3 +8,4 @@ lxml
 ultimate_sitemap_parser
 pymorphy3
 pymorphy3-dicts-ru
+selenium

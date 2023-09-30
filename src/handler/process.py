@@ -16,6 +16,7 @@ def process_url_request(channel, method, props, body: bytes):
 
     stats = get_stats_report(u.url)
     metadata = get_metadata(u.url)
+    print(f"metadata: {metadata}")
     theme = get_theme(metadata[1])
 
     channel.basic_publish(
