@@ -67,8 +67,10 @@ def get_stats(soup):
 
 
 def get_stats_report(url: str):
-    domain = re.findall(r"([\w.-]+\.[\w.-]+)", url)[0]
-    soup = get_soup(domain)
+    regexp = re.findall(r"([\w.-]+\.[\w.-]+)", url)
+    if len(regexp) == 0:
+        return {"title": "", "description": ""}
+    soup = get_soup(regexp[0])
     if not soup:
         return {"title": "", "description": ""}
     try:
