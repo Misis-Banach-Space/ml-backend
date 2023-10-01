@@ -46,22 +46,13 @@ def split_word(word):
 def transliterate_words(words):
     transliterated_words = set()
     spell = Speller(lang='ru')
-    spell_eng = Speller(lang='en')
-    translator = GoogleTranslator(source='english', target='russian')
     for word in words:
-            parts = split_word(word)
-            for part in parts:
-                if part != '':
-                    translation = translator.translate(spell_eng(word))
-                    if translation != '':
-                        split_translation = re.split(r'[^а-яА-Я]', translation)
-                        for word in split_translation:
-                            cleaned_word = re.sub(r'[^а-яА-Я]', '', word)
-                            if re.match("^[а-яА-Я]+$", cleaned_word):
-                                transliterated_words.add(spell(cleaned_word))
-                    transliteration = translit(part, 'ru')
-                    if re.match("^[а-яА-Я]+$", transliteration):
-                        transliterated_words.add(spell(transliteration))
+        parts = split_word(word)
+        for part in parts:
+            if part != '':
+                transliteration = translit(part, 'ru')
+                if re.match("^[а-яА-Я]+$", transliteration):
+                    transliterated_words.add(spell(transliteration))
     return transliterated_words
 
 
