@@ -35,8 +35,12 @@ def get_words_from_url(url):
     return words
 
 def split_word(word):
-    words_dash = word.split('-')
-    return words_dash
+    symbols = ['-', '/', '%', ' ', '.', '_']
+    for symbol in symbols:
+        words = word.split(symbol)
+        if len(words) > 1:
+            return words
+    return [word]
 
 
 def transliterate_words(words):
@@ -164,6 +168,19 @@ def parse_url(base_url: str):
                     if cur:
                         h3.add(cur)
                 data += ",".join([tag for tag in h3])
+                tags = ['div', 'p', 'span']
+                result = ""
+                for tag in tags:
+                    elements = soup.find_all(tag)
+                    for element in elements:
+                        if len(element.text) > 300:
+                            result += element.text + " "
+                            result = re.sub(r'\s+', ' ', result)
+                    if len(result) > 1000:
+                        break
+                result = result[:500]
+                result = re.sub(r'[^\w\s.,;:!?-]', '', result)
+                data += result
                 return (
                     data.replace("\n", " ")
                     .replace("\r", "")
@@ -190,15 +207,15 @@ def get_metadata(url: str):
 
 
 async def main():
-    # websites = pd.read_csv("list2.csv", sep=",", encoding="utf-8")
+    websites = pd.read_csv("list2.csv", sep=",", encoding="utf-8")
 
-    # data_list: list[dict] = [[url, parse_url(url)] for url in websites["link"]]
-    # df = pd.DataFrame(columns=["link", "metadata"], data=data_list)
-    # websites = websites.merge(df, on="link", how="left")
-    # websites.to_csv("metadata.csv", sep=";", index=False, encoding="utf-8")
-    # print(websites.head())
-    url = 'https://www.dns-shop.ru/catalog/17a8df6816404e77/lazernye-mfu/'
-    print(parse_url(url))
+    data_list: list[dict] = [[url, parse_url(url)] for url in websites["link"]]
+    df = pd.DataFrame(columns=["link", "metadata"], data=data_list)
+    websites = websites.merge(df, on="link", how="left")
+    websites.to_csv("metadata.csv", sep=";", index=False, encoding="utf-8")
+    print(websites.head())
+    # url = 'https://www.dns-shop.ru/catalog/17a8df6816404e77/lazernye-mfu/'
+    # print(parse_url(url))
 
 
 if __name__ == "__main__":
