@@ -5,7 +5,6 @@ from service.parse_analysis import get_stats_report
 from service.parse_metadata import get_metadata
 from ml.nlp import get_theme
 from utils.logging import get_logger
-
 from ml.prediction_kakos import make_predict
 
 log = get_logger(__name__)
